@@ -5,4 +5,5 @@ type GoogleUserResponse struct {
 	Email         string `json:"email"`
 	VerifiedEmail bool   `json:"verified_email"`
 	Picture       string `json:"picture"`
+	IDToken       string `json:"id_token,omitempty"`
 }

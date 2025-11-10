@@ -94,11 +94,16 @@ func generateStateOauthCookie(w http.ResponseWriter) string {
 }
 
 func getUserDataFromGoogle(code string) (*models.GoogleUserResponse, error) {
-	// Use code to get token and get user info from Google.
-
 	token, err := googleOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, fmt.Errorf("code exchange wrong: %s", err.Error())
+	}
+
+	idToken, ok := token.Extra("id_token").(string)
+	if ok && idToken != "" {
+		fmt.Println("📢 Google ID Token:", idToken)
+	} else {
+		fmt.Println("⚠️ Tidak ada ID Token dalam response Google.")
 	}
 
 	response, err := http.Get(oauthGoogleUrlAPI + token.AccessToken)
@@ -116,6 +121,8 @@ func getUserDataFromGoogle(code string) (*models.GoogleUserResponse, error) {
 	if err := json.Unmarshal(contents, &user); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal user data: %s", err.Error())
 	}
+
+	user.IDToken = idToken
 
 	return &user, nil
 }
